@@ -85,6 +85,24 @@ void Preprocess::process(const sensor_msgs::PointCloud2::ConstPtr &msg, PointClo
   *pcl_out = pl_surf;
 }
 
+bool Preprocess::isTagNormal(const uint8_t& point_tag)
+{
+  // get bit 0 and bit 1
+  auto bit01 = point_tag & 0x03;
+
+  if(bit01 != 0x00){
+    return false;
+  }
+
+  // get bit 2 and bit 3
+  auto bit23 = (point_tag >> 2) & 0x03;
+  if(bit23 != 0x00){
+    return false;
+  }
+
+  return true;
+}
+
 void Preprocess::avia_handler(const livox_ros_driver::CustomMsg::ConstPtr &msg)
 {
   pl_surf.clear();
@@ -109,7 +127,8 @@ void Preprocess::avia_handler(const livox_ros_driver::CustomMsg::ConstPtr &msg)
   {
     for(uint i=1; i<plsize; i++)
     {
-      if((msg->points[i].line < N_SCANS) && ((msg->points[i].tag & 0x30) == 0x10 || (msg->points[i].tag & 0x30) == 0x00))
+      // if((msg->points[i].line < N_SCANS) && ((msg->points[i].tag & 0x30) == 0x10 || (msg->points[i].tag & 0x30) == 0x00))
+      if((msg->points[i].line < N_SCANS) && isTagNormal(msg->points[i].tag))
       {
         pl_full[i].x = msg->points[i].x;
         pl_full[i].y = msg->points[i].y;
@@ -158,7 +177,7 @@ void Preprocess::avia_handler(const livox_ros_driver::CustomMsg::ConstPtr &msg)
   {
     for(uint i=1; i<plsize; i++)
     {
-      if((msg->points[i].line < N_SCANS) && ((msg->points[i].tag & 0x30) == 0x10 || (msg->points[i].tag & 0x30) == 0x00))
+      if((msg->points[i].line < N_SCANS) && isTagNormal(msg->points[i].tag))
       {
         valid_num ++;
         if (valid_num % point_filter_num == 0)
