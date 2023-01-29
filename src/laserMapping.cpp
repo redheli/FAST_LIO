@@ -732,7 +732,7 @@ void h_share_model(state_ikfom &s, esekfom::dyn_share_datastruct<double> &ekfom_
 
         /*** calculate the Measuremnt Jacobian matrix H ***/
         V3D C(s.rot.conjugate() *norm_vec);
-        V3D A(point_crossmat * C);
+        V3D A(point_crossmat * C); //Max: https://github.com/hku-mars/FAST_LIO/issues/62#issuecomment-1188560900
         if (extrinsic_est_en)
         {
             V3D B(point_be_crossmat * s.offset_R_L_I.conjugate() * C); //s.rot.conjugate()*norm_vec);
